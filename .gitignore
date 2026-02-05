@@ -1,0 +1,134 @@
+# Go binaries
+*.o
+*.a
+*.so
+*.exe
+*.exe~
+*.dll
+*.dylib
+
+# Go test binaries
+*.test
+
+# Go build output
+api
+bin/
+out/
+dist/
+
+# Dependency directory
+vendor/
+go.sum
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+.env.production
+.env.development
+
+# IDE and Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.iml
+*.iws
+*.ipr
+.DS_Store
+
+# GoLand IDE
+.idea/
+
+# Visual Studio Code
+.vscode/
+*.code-workspace
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
+[._]s[a-v][a-z]
+[._]sw[a-p]
+.vim/
+
+# OS specific files
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+*.swp
+*.swo
+*~
+.viminfo
+
+# Windows
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+.directory
+
+# Logs
+*.log
+logs/
+*.out
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+pgdata/
+postgres_data/
+
+# Docker
+.dockerignore
+docker-compose.override.yml
+
+# Build artifacts
+/build/
+/dist/
+*.tar.gz
+
+# Test coverage
+coverage.out
+coverage.html
+*.coverprofile
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.bak
+
+# Go workspace file (Go 1.18+)
+go.work
+
+# Secrets and credentials
+.ssh/
+*.pem
+*.key
+credentials.json
+secrets/
+
+# OS
+*.pid
+*.seed
+
+# IDE run configurations
+.run/
+
+# Local development overrides
+local/
+.local/
+
+# Node modules (if using any JS tools)
+node_modules/
+
+# Generated code
+generated/
