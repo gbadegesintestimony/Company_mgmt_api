@@ -1,4 +1,6 @@
-# Go binaries
+# ============================================
+# Go Binaries & Build Artifacts
+# ============================================
 *.o
 *.a
 *.so
@@ -6,129 +8,76 @@
 *.exe~
 *.dll
 *.dylib
-
-# Go test binaries
 *.test
-
-# Go build output
 api
 bin/
 out/
 dist/
+build/
 
-# Dependency directory
+# ============================================
+# Dependencies
+# ============================================
 vendor/
-go.sum
+# Note: go.sum should be committed!
 
-# Environment variables
+# ============================================
+# Environment & Secrets
+# ============================================
 .env
-.env.local
-.env.*.local
-.env.production
-.env.development
+.env.*
+!.env.example
+*.pem
+*.key
+credentials.json
+secrets/
 
-# IDE and Editor files
+# ============================================
+# IDE & Editors
+# ============================================
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
 *.iml
-*.iws
-*.ipr
 .DS_Store
 
-# GoLand IDE
-.idea/
-
-# Visual Studio Code
-.vscode/
-*.code-workspace
-
-# Sublime Text
-*.sublime-project
-*.sublime-workspace
-
-# Vim
-[._]*.s[a-v][a-z]
-[._]*.sw[a-p]
-[._]s[a-v][a-z]
-[._]sw[a-p]
-.vim/
-
-# OS specific files
-# macOS
-.DS_Store
-.AppleDouble
-.LSOverride
-*.swp
-*.swo
-*~
-.viminfo
-
-# Windows
-Thumbs.db
-Desktop.ini
-$RECYCLE.BIN/
-
-# Linux
-.directory
-
-# Logs
-*.log
-logs/
-*.out
-
-# Database
+# ============================================
+# Databases
+# ============================================
 *.db
 *.sqlite
 *.sqlite3
 pgdata/
 postgres_data/
 
-# Docker
-.dockerignore
-docker-compose.override.yml
-
-# Build artifacts
-/build/
-/dist/
-*.tar.gz
-
-# Test coverage
-coverage.out
-coverage.html
-*.coverprofile
-
-# Temporary files
+# ============================================
+# Logs & Temporary Files
+# ============================================
+*.log
+logs/
 tmp/
 temp/
 *.tmp
 *.bak
 
-# Go workspace file (Go 1.18+)
-go.work
+# ============================================
+# Test Coverage
+# ============================================
+coverage.out
+coverage.html
+*.coverprofile
 
-# Secrets and credentials
-.ssh/
-*.pem
-*.key
-credentials.json
-secrets/
+# ============================================
+# OS Specific
+# ============================================
+Thumbs.db
+Desktop.ini
+.DS_Store
+.directory
 
-# OS
-*.pid
-*.seed
-
-# IDE run configurations
-.run/
-
-# Local development overrides
-local/
-.local/
-
-# Node modules (if using any JS tools)
-node_modules/
-
-# Generated code
-generated/
+# ============================================
+# Docker (optional overrides)
+# ============================================
+docker-compose.override.yml
