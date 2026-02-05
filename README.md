@@ -245,27 +245,6 @@ go run ./cmd/main.go
 
 The application will be available at `http://localhost:8080`
 
-## Configuration
-
-Configuration is loaded from environment variables via `.env` file. The `config.LoadConfig()` function in [config/config.go](config/config.go) manages this initialization.
-
-### Environment Variables
-
-| Variable             | Description                             | Required | Default |
-| -------------------- | --------------------------------------- | -------- | ------- |
-| `APP_ENV`            | Environment (development/production)    | Yes      | -       |
-| `APP_PORT`           | Server port                             | Yes      | -       |
-| `DB_HOST`            | PostgreSQL host                         | Yes      | -       |
-| `DB_PORT`            | PostgreSQL port                         | Yes      | -       |
-| `DB_USER`            | PostgreSQL user                         | Yes      | -       |
-| `DB_PASSWORD`        | PostgreSQL password                     | Yes      | -       |
-| `DB_NAME`            | PostgreSQL database name                | Yes      | -       |
-| `DB_SSLMODE`         | PostgreSQL SSL mode                     | No       | disable |
-| `JWT_ACCESS_SECRET`  | JWT access token secret (min 32 chars)  | Yes      | -       |
-| `JWT_REFRESH_SECRET` | JWT refresh token secret (min 32 chars) | Yes      | -       |
-| `EMAIL_FROM`         | Sender email address                    | Yes      | -       |
-| `RESEND_API_KEY`     | Resend email service API key            | Yes      | -       |
-
 ## Running the Application
 
 ### Start with Docker Compose
@@ -373,17 +352,6 @@ All responses follow a standard JSON format:
 }
 ```
 
-## Development
-
-### Code Style
-
-This project follows Go conventions:
-
-- Use `gofmt` for code formatting
-- Use `go vet` for code analysis
-- Use meaningful variable and function names
-- Write tests for new functionality
-
 ### Running Code Quality Tools
 
 ```bash
@@ -399,15 +367,6 @@ go test ./...
 # Run tests with coverage
 go test -cover ./...
 ```
-
-### Adding New Features
-
-1. Create a new handler in `handlers/`
-2. Implement service logic in `services/`
-3. Create or update repository in `repositories/`
-4. Add routes to `routes/`
-5. Write comprehensive tests
-6. Update this README with new endpoints
 
 ## Testing
 
@@ -461,10 +420,6 @@ recorder := testutils.NewTestRequest(t, http.MethodGet, "/endpoint", nil)
 assert.Equal(t, http.StatusOK, recorder.Code)
 ```
 
-## Database Migrations
-
-Migrations are versioned SQL files in `database/migrations/`. Each migration has an `.up.sql` (apply) and `.down.sql` (rollback) file.
-
 ### Current Migrations
 
 - **001_init**: Core schema (users, employees, profiles)
@@ -474,173 +429,13 @@ Migrations are versioned SQL files in `database/migrations/`. Each migration has
 - **005_otp_codes**: OTP storage
 - **006_indexes**: Performance indexes
 
-### Running Migrations
-
-Migrations run automatically on application startup. To manually manage:
-
-```bash
-# Run migrations programmatically from Go code
-import "github.com/golang-migrate/migrate/v4"
-// See database/postgres.go for implementation
 ```
 
-### Creating New Migrations
-
-```bash
-# Create new migration files
-touch database/migrations/007_your_feature.up.sql
-touch database/migrations/007_your_feature.down.sql
-```
-
-Follow the naming convention: `NNN_feature_name.{up|down}.sql`
-
-## Security Considerations
-
-### Authentication & Authorization
-
-- All sensitive endpoints require JWT authentication
-- JWT secrets must be minimum 32 characters in production
-- Tokens should be short-lived (implement refresh token rotation)
-- Implement role-based access control for admin endpoints
-
-### Password Security
-
-- Passwords are hashed with bcrypt (cost factor: 12)
-- Never log or expose passwords
-- Implement password complexity requirements
-- Consider rate limiting on login attempts
-
-### Data Protection
-
-- Use HTTPS in production (enable SSL)
-- Set `DB_SSLMODE=require` for production database connections
-- Implement audit logging for sensitive operations
-- Use secure session cookies with HttpOnly flag
-
-### API Security
-
-- Implement CORS properly for your domain
-- Use rate limiting to prevent abuse
-- Validate all input data
-- Sanitize database queries against SQL injection
-- Implement request ID tracking for security audits
-
-### Environment Variables
-
-- Never commit `.env` files to version control
-- Rotate secrets regularly in production
-- Use a secrets management system (AWS Secrets Manager, HashiCorp Vault)
-- Store credentials securely in CI/CD pipelines
-
-## Deployment
-
-### Docker Deployment
-
-#### Build Image
-
-```bash
-docker build -t company-mgmt-api:latest .
-```
-
-#### Run Container
-
-```bash
-docker run -d \
-  --name company_mgmt_api \
-  -p 8080:8080 \
-  --env-file .env \
-  company-mgmt-api:latest
-```
-
-### Docker Compose Deployment
-
-```bash
-docker-compose up -d
-```
-
-### Production Checklist
-
-- [ ] Set `APP_ENV=production`
-- [ ] Use strong, unique secrets for JWT keys
-- [ ] Enable database SSL: `DB_SSLMODE=require`
-- [ ] Configure CORS for your domain
-- [ ] Set up monitoring and logging
-- [ ] Enable rate limiting
-- [ ] Use a reverse proxy (Nginx) with SSL/TLS
-- [ ] Implement health checks and monitoring
-- [ ] Set up database backups
-- [ ] Configure auto-scaling if using Kubernetes
-- [ ] Implement proper error handling and logging
-- [ ] Set up CI/CD pipeline
-
-### Database Backup
-
-```bash
-# Backup PostgreSQL database
-pg_dump -U $DB_USER -h $DB_HOST $DB_NAME > backup.sql
-
-# Restore from backup
-psql -U $DB_USER -h $DB_HOST $DB_NAME < backup.sql
-```
-
-## Contributing
-
-### Development Workflow
-
-1. **Create Feature Branch**
-
-   ```bash
-   git checkout -b feature/your-feature-name
-   ```
-
-2. **Implement Feature**
-   - Write clean, documented code
-   - Follow Go conventions
-   - Add comprehensive tests
-   - Update relevant documentation
-
-3. **Test Thoroughly**
-
-   ```bash
-   go test ./...
-   go fmt ./...
-   go vet ./...
-   ```
-
-4. **Submit Pull Request**
-   - Include clear description of changes
-   - Reference related issues
-   - Ensure all tests pass
-   - Request code review from team members
-
-### Code Review Guidelines
-
-- All code changes require review
-- Tests must accompany code changes
-- Documentation must be updated
-- No hardcoded secrets or sensitive data
-- Follow architectural patterns established in the project
-
-### Reporting Issues
-
-When reporting bugs, include:
-
-- Clear description of the issue
-- Steps to reproduce
-- Expected vs actual behavior
-- Environment details (OS, Go version, etc.)
-- Request ID from logs if applicable
-
-## License
-
-[Add your license information here]
-
-## Support
-
-For issues, questions, or contributions, please [add support contact information here].
-
----
 
 **Last Updated**: February 2026
 **Go Version**: 1.24.4
 **Status**: Production Ready
+
+👤 Author
+Gbadegesin Testimony Backend Developer (Node.js | Go | Security)
+```
