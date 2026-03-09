@@ -1,424 +1,576 @@
-# Company Management API
+Company Management API
 
-A production-grade REST API built with Go for managing company employees, authentication, and administrative operations. This project demonstrates enterprise-level software architecture patterns, security best practices, and comprehensive testing strategies.
+A practical, end-to-end backend project that demonstrates how to build a secure multi-tenant company management system where an administrator can create and manage a company and its employees while employees authenticate, reset passwords, and manage their own profiles.
 
-## Overview
+This project focuses on mastering database design, authentication flows, RBAC authorization, CRUD operations, migrations, and email-based OTP workflows.
 
-The Company Management API provides a robust backend infrastructure for managing organizational data with features including:
+Table of Contents
 
-- **User Authentication & Authorization**: JWT-based authentication with role-based access control (RBAC)
-- **Employee Management**: CRUD operations for employee records with audit trails
-- **Security Features**: Password management, OTP verification, email verification, and session management
-- **Rate Limiting**: Built-in protection against abuse
-- **Comprehensive Logging**: Structured logging with request tracking
-- **Database Migrations**: Version-controlled schema evolution
+Overview
 
-**Tech Stack:**
+Project Objectives
 
-- **Language**: Go 1.24.4
-- **HTTP Framework**: Chi (chi/v5)
-- **Database**: PostgreSQL 15
-- **Authentication**: JWT (golang-jwt)
-- **Email Service**: Resend API
-- **Migration Tool**: golang-migrate
-- **Testing**: Testify, sqlmock
-- **Logging**: Zerolog
+System Architecture
 
-## Architecture
+Technology Stack
 
-### Project Structure
+Features
 
-```
-cmd/                          # Application entry point
-├── main.go
+Data Model
 
-config/                       # Configuration management
-├── config.go
+RBAC and Security Model
 
-database/                     # Database connectivity and migrations
-├── postgres.go
-└── migrations/               # Versioned SQL migrations
+Authentication and Email Flows
 
-handlers/                     # HTTP request handlers (controller layer)
-├── auth.go
-├── admin_employee_handler.go
-├── password_handler.go
-├── verification_handler.go
-├── me_handler.go
-├── health.go
-└── *_integration_test.go     # Integration tests
+API Endpoints
 
-middlewares/                  # HTTP middleware
-├── auth.go                   # JWT validation
-├── cors.go                   # CORS configuration
-├── rbac.go                   # Role-based access control
-└── request_id.go             # Request tracking
+Project Structure
 
-services/                     # Business logic layer
-├── auth_service.go
-├── employee_service.go
-├── email_service.go
-├── otp_service.go
-└── rate_limiter.go
+Setup and Installation
 
-repositories/                 # Data access layer (repository pattern)
-├── user_repositories.go
-├── employee_repository.go
-├── session_repository.go
-├── otp_repository.go
-├── audit_repository.go
-└── *_test.go                 # Unit tests
+Environment Variables
 
-models/                       # Data models
-├── user.go
-├── employee.go
-├── profile.go
-└── otp.go
+Running the Project
 
-routes/                       # Route definitions
-├── routes.go                 # Main router setup
-├── auth.go
-├── employee_routes.go
-├── password_routes.go
-└── verification_routes.go
+Database Migrations
 
-utils/                        # Utility functions
-├── jwt.go                    # JWT token generation/validation
-├── password.go               # Password hashing and verification
-├── otp.go                    # OTP generation logic
-├── token.go                  # Token utilities
-├── errors.go                 # Error handling
-└── *_test.go                 # Unit tests
+Testing the API
 
-logger/                       # Logging configuration
-└── logger.go                 # Zerolog setup
+Future Improvements
 
-internal/                     # Internal packages not exported
-└── testutils/                # Test helpers
-    ├── db.go
-    ├── email.go
-    └── http.go
-```
+Overview
 
-### Architectural Patterns
+The Company Management API is a backend service designed to simulate a real-world SaaS multi-tenant environment where multiple companies can exist within the same system while maintaining strict data isolation.
 
-**Layered Architecture:**
+Each company has:
 
-- **Handlers**: Parse requests and invoke services
-- **Services**: Encapsulate business logic and orchestrate repositories
-- **Repositories**: Abstract data access with a consistent interface
-- **Models**: Define domain entities
-- **Middlewares**: Cross-cutting concerns (auth, logging, CORS)
+An Admin
 
-**Key Design Principles:**
+Multiple Employees
 
-- Separation of concerns
-- Dependency injection via constructor parameters
-- Repository pattern for data access abstraction
-- Middleware chain for request preprocessing
-- Error handling with custom error types
+The admin manages company resources and employees, while employees manage their own profiles and authentication.
 
-## Features
+The system includes:
 
-### Authentication & Authorization
+Secure authentication
 
-- JWT-based token authentication (access + refresh tokens)
-- Role-based access control (RBAC) with middleware enforcement
-- Session management with database persistence
-- Token refresh mechanism
+Role-based authorization
 
-### User Management
+Email verification
 
-- User registration and login
-- Email verification workflow
-- Password management (change, reset)
-- OTP-based verification
-- User profile management
+OTP-based password reset
 
-### Employee Management
+Session management with refresh tokens
 
-- Full CRUD operations for employee records
-- Admin operations with elevated privileges
-- Comprehensive audit trail logging
-- Request ID tracking for debugging
+Audit logging
 
-### Security
+Project Objectives
+Primary Goal
 
-- Bcrypt password hashing
-- JWT secret-based authentication
-- CORS middleware
-- Request ID middleware for tracing
-- Rate limiting per endpoint
-- OTP generation and validation
+Build a secure multi-tenant backend system where administrators can manage company operations and employees securely.
 
-### Observability
+Learning Outcomes
 
-- Structured logging with request context
-- Request ID propagation
-- Audit trails for sensitive operations
-- Health check endpoint
+This project helps internalize the following backend engineering concepts:
 
-## Prerequisites
+Database Fundamentals
 
-### System Requirements
+Schema design
 
-- **Go**: 1.24.4 or higher
-- **PostgreSQL**: 15.x or higher
-- **Docker & Docker Compose** (recommended)
-- **Git**
+PostgreSQL relational modeling
 
-### Environment Variables
+Migrations
 
-Create a `.env` file in the project root:
+Indexes
 
-```env
-# Application
-APP_ENV=development
-APP_PORT=8080
+Joins
 
-# Database
-DB_HOST=localhost
+Transactions
+
+Authentication
+
+JWT access tokens
+
+Refresh token rotation
+
+Session persistence
+
+Password hashing
+
+Authorization
+
+Role Based Access Control (RBAC)
+
+Company-scoped authorization
+
+CRUD Operations
+
+Create, read, update, and delete across:
+
+Companies
+
+Employees
+
+Profiles
+
+Email and OTP Systems
+
+Render
+
+OTP verification
+
+Password reset workflows
+
+Rate limiting
+
+Security
+
+Password hashing (bcrypt)
+
+Input validation
+
+Rate limiting
+
+Least privilege access
+
+Observability
+
+Structured logging
+
+Request tracing
+
+Error handling
+
+System Architecture
+Client (Postman / Web App)
+│
+▼
+Go HTTP API (REST)
+│
+▼
+Service Layer
+(Authentication, RBAC, Business Logic)
+│
+▼
+Repository Layer
+(Database Queries)
+│
+▼
+PostgreSQL Database
+Architecture Components
+
+API Layer
+
+Handles HTTP requests and responses using Go's HTTP server.
+
+Authentication Layer
+
+Handles:
+
+JWT access tokens
+
+Refresh token rotation
+
+Session validation
+
+RBAC Middleware
+
+Restricts access based on role:
+
+Admin
+
+Employee
+
+Database Layer
+
+PostgreSQL with migrations for schema evolution.
+
+Email Layer
+
+Render integration used for:
+
+Email verification
+
+Password reset OTPs
+
+Configuration
+
+Environment variables store secrets such as:
+
+JWT keys
+
+Render credentials
+
+Database connection strings
+
+Observability
+
+Logging system for request tracking and error visibility.
+
+Technology Stack
+Component Technology
+Language Go
+HTTP Framework net/http + router
+Database PostgreSQL
+Migrations golang-migrate
+Authentication JWT
+Password Hashing bcrypt / argon2id
+Email Render
+Containerization Docker
+Testing Postman
+Features
+Admin Features
+
+Create company
+
+Manage employees
+
+Update employee roles
+
+Deactivate / reactivate users
+
+View audit logs
+
+Manage company profile
+
+Employee Features
+
+Login
+
+Update profile
+
+Change password
+
+Reset password via OTP
+
+View company information
+
+Security Features
+
+JWT authentication
+
+Refresh token sessions
+
+Password hashing
+
+OTP verification
+
+Role-based access control
+
+Company-scoped authorization
+
+Data Model
+Companies
+Field Description
+id Company ID
+name Company name
+domain Company email domain
+status Active / suspended
+created_at Creation timestamp
+Users
+Field Description
+id User ID
+company_id Foreign key to company
+role admin or employee
+email User email
+password_hash Hashed password
+is_active Account status
+email_verified_at Email verification timestamp
+Profiles
+
+Stores employee profile information.
+
+Field Description
+user_id FK to user
+first_name First name
+last_name Last name
+phone Phone number
+job_title Job title
+department Department
+Password Resets
+
+Stores OTPs for password reset.
+
+Field Description
+user_id User reference
+otp_code Reset code
+expires_at Expiration time
+Email Verifications
+
+Stores email verification OTPs.
+
+Sessions
+
+Stores refresh token sessions.
+
+Field Description
+refresh_token_hash Stored hashed token
+expires_at Session expiry
+Audit Logs
+
+Tracks system events.
+
+Example:
+
+Employee created
+
+Employee deleted
+
+Password reset
+
+Role updated
+
+RBAC and Security Model
+Roles
+
+Admin
+
+Manage company
+
+Create employees
+
+Update employees
+
+View audit logs
+
+Employee
+
+Login
+
+Update own profile
+
+Reset password
+
+View company details
+
+Authorization Rules
+
+Every request is company scoped
+
+Employees cannot access admin endpoints
+
+Inactive users cannot authenticate
+
+Unverified users cannot access privileged endpoints
+
+Authentication and Email Flows
+Admin Onboarding
+
+Admin registers company
+
+Email verification OTP sent
+
+Admin confirms OTP
+
+Admin session created
+
+Employee Lifecycle
+
+Admin creates employee
+
+Employee receives invite email
+
+Employee verifies email via OTP
+
+Employee logs in
+
+Employee updates profile
+
+Password Reset
+
+User requests reset
+
+OTP sent via email
+
+User confirms OTP
+
+User sets new password
+
+API Endpoints
+Authentication
+
+POST /v1/auth/admin/register
+
+Create company and admin account.
+
+POST /v1/auth/admin/login
+
+Admin login.
+
+POST /v1/auth/employee/login
+
+Employee login.
+
+POST /v1/auth/refresh
+
+Refresh JWT token.
+
+POST /v1/auth/logout
+
+Invalidate refresh token.
+
+Email Verification
+
+POST /v1/verification/email/request
+
+Request verification OTP.
+
+POST /v1/verification/email/confirm
+
+Verify email with OTP.
+
+Password Reset
+
+POST /v1/password/forgot
+
+Request password reset OTP.
+
+POST /v1/password/reset
+
+Reset password using OTP.
+
+Company Management
+
+GET /v1/companies/:companyId
+
+Get company details.
+
+PATCH /v1/companies/:companyId
+
+Update company details.
+
+Employee Administration
+
+POST /v1/companies/:companyId/employees
+
+Create employee.
+
+GET /v1/companies/:companyId/employees
+
+List employees.
+
+GET /v1/companies/:companyId/employees/:userId
+
+View employee.
+
+PATCH /v1/companies/:companyId/employees/:userId
+
+Update employee.
+
+DELETE /v1/companies/:companyId/employees/:userId
+
+Delete employee.
+
+Employee Self Service
+
+GET /v1/me
+
+Get current user.
+
+PATCH /v1/me/profile
+
+Update own profile.
+
+PATCH /v1/me/password
+
+Change password.
+
+Project Structure
+company_mgmt_api
+
+cmd/
+api/
+
+internal/
+handlers/
+services/
+repositories/
+middleware/
+
+database/
+migrations/
+
+pkg/
+auth/
+email/
+utils/
+
+docker-compose.yml
+.env
+Setup and Installation
+Clone repository
+git clone https://github.com/yourname/company-mgmt-api
+cd company-mgmt-api
+Start services
+docker compose up --build
+
+This will start:
+
+API server
+
+PostgreSQL database
+
+Environment Variables
+
+Example .env
+
+PORT=8080
+
+DB_HOST=postgres
 DB_PORT=5432
-DB_USER=postgres
-DB_PASSWORD=your_secure_password
-DB_NAME=company_mgmt
-DB_SSLMODE=disable
+DB_USER=company_user
+DB_PASSWORD=company_pass
+DB_NAME=company_db
 
-# JWT
-JWT_ACCESS_SECRET=your_secret_key_for_access_tokens_min_32_chars
-JWT_REFRESH_SECRET=your_secret_key_for_refresh_tokens_min_32_chars
+JWT_SECRET=supersecret
 
-# Email Service
-EMAIL_FROM=noreply@company.com
-RESEND_API_KEY=your_resend_api_key
-```
+RESEND_API_KEY
+EMAIL_FROM
 
-## Setup & Installation
+Database Migrations
 
-### Option 1: Docker Compose (Recommended)
+This project uses golang-migrate.
 
-```bash
-# Clone the repository
-git clone <repository-url>
-cd Company_mgmt_api
+Run migrations:
 
-# Build and start services
-docker-compose up -d
+migrate up
 
-# Run database migrations (if needed)
-docker-compose exec api ./api migrate
-```
+Rollback:
 
-The application will be available at `http://localhost:8080`
+migrate down
 
-### Option 2: Local Development
+Migration files are located in:
 
-```bash
-# Install dependencies
-go mod download
+database/migrations
+Testing the API
 
-# Ensure PostgreSQL is running on localhost:5432
+You can test endpoints using:
 
-# Run database migrations
-go run ./cmd/main.go migrate
+Postman
 
-# Start the application
-go run ./cmd/main.go
-```
+Curl
 
-The application will be available at `http://localhost:8080`
+REST clients
 
-## Running the Application
+Example:
 
-### Start with Docker Compose
+POST http://localhost:8080/v1/auth/admin/register
+Future Improvements
 
-```bash
-docker-compose up
-```
+Possible enhancements:
 
-### Start Locally
+API documentation with Swagger
 
-```bash
-go run ./cmd/main.go
-```
+Rate limiting middleware
 
-### Verify Health
+Background job queue
 
-```bash
-curl http://localhost:8080/v1/health
-```
+Email templates
 
-Expected response:
+Metrics and monitoring
 
-```json
-{
-  "status": "ok"
-}
-```
+CI/CD pipeline
 
-## API Documentation
+Unit and integration testing
 
-### Base URL
-
-```
-http://localhost:8080/v1
-```
-
-### Authentication
-
-Most endpoints require a valid JWT token in the `Authorization` header:
-
-```
-Authorization: Bearer <access_token>
-```
-
-### Core Endpoints
-
-#### Health Check
-
-```
-GET /v1/health
-```
-
-Public endpoint for health monitoring.
-
-#### Authentication
-
-```
-POST /v1/auth/register          # Register new user
-POST /v1/auth/login             # User login
-POST /v1/auth/refresh           # Refresh access token
-```
-
-#### Verification
-
-```
-POST /v1/verify/email           # Send email verification
-POST /v1/verify/email/confirm   # Confirm email verification
-```
-
-#### Password Management
-
-```
-POST /v1/password/change        # Change password (authenticated)
-POST /v1/password/reset         # Request password reset
-POST /v1/password/reset/confirm # Confirm password reset
-```
-
-#### Employee Management (Authenticated - Admin only)
-
-```
-GET    /v1/employees            # List all employees
-GET    /v1/employees/{id}       # Get employee details
-POST   /v1/employees            # Create new employee
-PUT    /v1/employees/{id}       # Update employee
-DELETE /v1/employees/{id}       # Delete employee
-```
-
-#### User Profile (Authenticated)
-
-```
-GET    /v1/me                   # Get current user profile
-PUT    /v1/me                   # Update current user profile
-```
-
-### Response Format
-
-All responses follow a standard JSON format:
-
-```json
-{
-  "success": true,
-  "data": {},
-  "error": null,
-  "request_id": "550e8400-e29b-41d4-a716-446655440000"
-}
-```
-
-### Running Code Quality Tools
-
-```bash
-# Format code
-go fmt ./...
-
-# Run linter
-go vet ./...
-
-# Run tests
-go test ./...
-
-# Run tests with coverage
-go test -cover ./...
-```
-
-## Testing
-
-### Test Coverage
-
-- **Unit Tests**: Repository and utility functions
-- **Integration Tests**: Handler and service interactions
-- **Test Utilities**: Helper functions in `internal/testutils/`
-
-### Run Tests
-
-```bash
-# Run all tests
-go test ./...
-
-# Run tests with verbose output
-go test -v ./...
-
-# Run specific package tests
-go test ./handlers
-
-# Run with coverage report
-go test -cover ./...
-
-# Generate coverage HTML report
-go test -coverprofile=coverage.out ./...
-go tool cover -html=coverage.out
-```
-
-### Test Files
-
-Tests follow Go conventions:
-
-- Unit tests: `*_test.go` files in the same package
-- Integration tests: `*_integration_test.go` files
-- Test utilities: `internal/testutils/`
-
-### Writing Tests
-
-Use the test utilities provided:
-
-```go
-// Create test database
-db := testutils.SetupTestDB(t)
-defer testutils.TeardownTestDB(t, db)
-
-// Use mock HTTP requests
-recorder := testutils.NewTestRequest(t, http.MethodGet, "/endpoint", nil)
-
-// Assert responses
-assert.Equal(t, http.StatusOK, recorder.Code)
-```
-
-### Current Migrations
-
-- **001_init**: Core schema (users, employees, profiles)
-- **002_verification**: Email verification system
-- **003_sessions**: Session management
-- **004_audit**: Audit logging tables
-- **005_otp_codes**: OTP storage
-- **006_indexes**: Performance indexes
-
-```
-
-
-**Last Updated**: February 2026
-**Go Version**: 1.24.4
-**Status**: Production Ready
-
-👤 Author
-Gbadegesin Testimony Backend Developer (Node.js | Go | Security)
-```
+OAuth authentication
