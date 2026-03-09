@@ -1,6 +1,7 @@
 package services
 
 import (
+	"company_mgmt_api/models"
 	"company_mgmt_api/repositories"
 	"company_mgmt_api/utils"
 	"context"
@@ -31,7 +32,14 @@ func (s *OTPService) GenerateAndSendOTP(
 	otpCode := utils.GenerateOTP()
 	hash := utils.HashOTP(otpCode)
 
-	if err := s.Repo.Create(ctx, userID, hash, purpose); err != nil {
+	otp := &models.OTP{
+		UserID:    userID,
+		CodeHash:  hash,
+		Purpose:   purpose,
+		ExpiresAt: time.Now().Add(10 * time.Minute),
+	}
+
+	if err := s.Repo.Create(ctx, otp); err != nil {
 		return err
 	}
 
@@ -45,16 +53,16 @@ func (s *OTPService) VerifyOTP(
 	ctx context.Context,
 	userID, code, purpose string,
 ) error {
-	hash, expiresAt, err := s.Repo.GetActive(ctx, userID, purpose)
+	otp, err := s.Repo.GetActive(ctx, userID, purpose)
 	if err != nil {
 		return errors.New("invalid code")
 	}
 
-	if time.Now().After(expiresAt) {
+	if time.Now().After(otp.ExpiresAt) {
 		return errors.New("code has expired")
 	}
 
-	if err := utils.VerifyOTP(hash, code); err != nil {
+	if err := utils.VerifyOTP(otp.CodeHash, code); err != nil {
 		return errors.New("invalid code")
 	}
 

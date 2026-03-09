@@ -4,9 +4,13 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"time"
 
+	"company_mgmt_api/models"
+
 	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type OTPRepository struct {
@@ -20,19 +24,23 @@ func NewOTPRepository(db *sql.DB) *OTPRepository {
 
 func (r *OTPRepository) Create(
 	ctx context.Context,
-	userID, code, purpose string,
+	o *models.OTP,
 ) error {
-	// Implementation for creating an OTP
+	// Ensure ID is set
+	id := o.ID
+	if id == "" {
+		id = uuid.New().String()
+	}
+
 	_, err := r.DB.ExecContext(ctx,
-		`INSERT INTO otps (id, user_id, code, purpose, expires_at) 
+		`INSERT INTO otps (id, user_id, purpose, code_hash, expires_at) 
 		VALUES ($1, $2, $3, $4, $5)
 		`,
-
-		uuid.New(),
-		userID,
-		code,
-		purpose,
-		time.Now().Add(10*time.Minute),
+		id,
+		o.UserID,
+		o.Purpose,
+		o.CodeHash,
+		o.ExpiresAt,
 	)
 	return err
 }
@@ -44,10 +52,13 @@ func (r *OTPRepository) CountRecent(
 ) (int, error) {
 	// Implementation for counting recent OTPs
 	var count int
-	err := r.DB.QueryRowContext(ctx,
-		`SELECT COUNT(*) FROM otps 
-		WHERE user_id = $1 AND created_at >= NOW() - INTERVAL $2 * INTERVAL '1 minutes'
-	`, userID, int(since.Minutes()),
+	minutes := int(since.Minutes())
+	query := fmt.Sprintf(`
+        SELECT COUNT(*) FROM otps 
+        WHERE user_id = $1 AND created_at >= NOW() - INTERVAL '%d minutes'
+    `, minutes)
+	err := r.DB.QueryRowContext(ctx, query,
+		userID,
 	).Scan(&count)
 	return count, err
 }
@@ -55,20 +66,23 @@ func (r *OTPRepository) CountRecent(
 func (r *OTPRepository) GetActive(
 	ctx context.Context,
 	userID, purpose string,
-) (string, time.Time, error) {
-	// Implementation for getting an active OTP
+) (*models.OTP, error) {
+	var id string
 	var hash string
 	var expiresAt time.Time
 
 	err := r.DB.QueryRowContext(ctx,
-		`SELECT code, expires_at FROM otps 
+		`SELECT id, code_hash, expires_at FROM otps 
 		WHERE user_id = $1 
 		AND purpose = $2 
 		AND consumed_at IS NULL
 		ORDER BY created_at DESC
 		LIMIT 1
-	`, userID, purpose).Scan(&hash, &expiresAt)
-	return hash, expiresAt, err
+	`, userID, purpose).Scan(&id, &hash, &expiresAt)
+	if err != nil {
+		return nil, err
+	}
+	return &models.OTP{ID: id, UserID: userID, CodeHash: hash, Purpose: purpose, ExpiresAt: expiresAt}, nil
 }
 
 func (r *OTPRepository) Consume(
@@ -87,21 +101,23 @@ func (r *OTPRepository) Consume(
 func (r *OTPRepository) VerifyAndConsumeTx(
 	ctx context.Context,
 	tx *sql.Tx,
-	userID, purpose, hash string,
+	userID, purpose, rawCode string,
 ) error {
 
+	var id string
+	var dbHash string
 	var expiresAt time.Time
+
 	err := tx.QueryRowContext(ctx,
-		`SELECT expires_at 
+		`SELECT id, code_hash, expires_at 
 		FROM otps 
 		WHERE user_id = $1
 		AND purpose = $2
-		AND code_hash = $3
 		AND consumed_at IS NULL
 		ORDER BY created_at DESC
 		LIMIT 1
 		FOR UPDATE
-	`, userID, purpose, hash).Scan(&expiresAt)
+	`, userID, purpose).Scan(&id, &dbHash, &expiresAt)
 
 	if err != nil {
 		return err
@@ -111,11 +127,13 @@ func (r *OTPRepository) VerifyAndConsumeTx(
 		return errors.New("OTP expired")
 	}
 
+	if err := bcrypt.CompareHashAndPassword([]byte(dbHash), []byte(rawCode)); err != nil {
+		return errors.New("invalid OTP")
+	}
+
 	_, err = tx.ExecContext(ctx, `
-	UPDATE otps
-	SET consumed_at = NOW()
-	WHERE user_id = $ 1 AND purpose = $2 AND code_hash = $3
-	`, userID, purpose, hash)
+		UPDATE otps SET consumed_at = NOW() WHERE id = $1
+	`, id)
 
 	return err
 }

@@ -23,25 +23,31 @@ func RegisterRoutes(cfg *config.Config, db *sql.DB) http.Handler {
 	sessionRepo := repositories.NewSessionRepository(db)
 	employeeRepo := repositories.NewEmployeeRepository(db)
 	auditRepo := repositories.NewAuditRepository(db)
+	companyRepo := repositories.NewCompanyRepository(db)
+	userRepo := repositories.NewUserRepository(db)
+
+	companyHandler := &handlers.CompanyHandler{Service: nil}
+	auditHandler := &handlers.AuditHandler{Repo: auditRepo}
 
 	r.Route("/v1", func(r chi.Router) {
-
 		r.Get("/health", handlers.Health)
 
-		AuthRoutes(r, cfg, sessionRepo)
-
+		// Public routes
+		AuthRoutes(r, cfg, sessionRepo, userRepo, companyRepo, db)
 		RegisterVerificationRoutes(r, db, cfg)
 		RegisterPasswordRoutes(r, db, cfg)
 
+		// Authenticated routes
 		r.Group(func(r chi.Router) {
 			r.Use(middlewares.AuthMiddleware(cfg.JWTAccessSecret))
 
-			EmployeeRoutes(
-				r,
-				employeeRepo,
-				auditRepo,
-				sessionRepo,
-			)
+			// /v1/me
+			r.Route("/me", func(r chi.Router) {
+				MeRoutes(r, employeeRepo, sessionRepo, db)
+			})
+
+			// /v1/companies/{companyId}/...
+			CompanyRoutes(r, companyHandler, auditHandler, employeeRepo, auditRepo, sessionRepo)
 		})
 	})
 

@@ -7,6 +7,55 @@ import (
 	"github.com/joho/godotenv"
 )
 
+// import (
+// 	"log"
+// 	"os"
+
+// 	"github.com/joho/godotenv"
+// )
+
+// type Config struct {
+// 	AppEnv  string
+// 	AppPort string
+
+// 	DBHost    string
+// 	DBPort    string
+// 	DBUser    string
+// 	DBPass    string
+// 	DBName    string
+// 	DBSSLMODE string
+
+// 	JWTAccessSecret  string
+// 	JWTRefreshSecret string
+
+// 	EmailFrom    string
+// 	ResendAPIKey string
+// }
+
+// func LoadConfig() *Config {
+// 	// Implementation for loading configuration settings
+// 	_ = godotenv.Load()
+
+// 	cfg := &Config{
+// 		AppEnv:  os.Getenv("APP_ENV"),
+// 		AppPort: os.Getenv("APP_PORT"),
+
+// 		DBHost:           os.Getenv("DB_HOST"),
+// 		DBPort:           os.Getenv("DB_PORT"),
+// 		DBUser:           os.Getenv("DB_USER"),
+// 		DBPass:           os.Getenv("DB_PASSWORD"),
+// 		DBName:           os.Getenv("DB_NAME"),
+// 		DBSSLMODE:        os.Getenv("DB_SSLMODE"),
+// 		JWTAccessSecret:  os.Getenv("JWT_ACCESS_SECRET"),
+// 		JWTRefreshSecret: os.Getenv("JWT_REFRESH_SECRET"),
+
+// 		EmailFrom:    os.Getenv("EMAIL_FROM"),
+// 		ResendAPIKey: os.Getenv("RESEND_API_KEY"),
+// 	}
+// 	validate(cfg)
+// 	return cfg
+// }
+
 type Config struct {
 	AppEnv  string
 	AppPort string
@@ -23,10 +72,11 @@ type Config struct {
 
 	EmailFrom    string
 	ResendAPIKey string
+
+	DevMode bool // add this
 }
 
 func LoadConfig() *Config {
-	// Implementation for loading configuration settings
 	_ = godotenv.Load()
 
 	cfg := &Config{
@@ -44,6 +94,8 @@ func LoadConfig() *Config {
 
 		EmailFrom:    os.Getenv("EMAIL_FROM"),
 		ResendAPIKey: os.Getenv("RESEND_API_KEY"),
+
+		DevMode: os.Getenv("APP_ENV") != "production", // auto true in dev, false in production
 	}
 	validate(cfg)
 	return cfg

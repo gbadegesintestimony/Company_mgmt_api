@@ -22,11 +22,8 @@ FROM gcr.io/distroless/base-debian12
 
 WORKDIR /app
 
-# Add health check (optional)
-HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
-    CMD ["/app/api", "health"]
-
 COPY --from=builder /app/api .
+COPY --from=builder /app/database/migrations ./database/migrations
 
 EXPOSE 8080
 

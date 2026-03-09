@@ -17,8 +17,9 @@ func TestAuditLog(t *testing.T) {
 	mock.ExpectExec("INSERT INTO audit_logs").
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
-	// FIX: Changed 'nil' to '"{}"' because the function expects a string
-	err := repo.Log(context.Background(), "ACTION", "actor", "target", "{}")
+	err := repo.Log(context.Background(), "ACTION", "actor", "target", map[string]string{
+		"info": "test",
+	})
 	if err != nil {
 		t.Fatal(err)
 	}

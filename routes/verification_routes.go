@@ -18,20 +18,24 @@ func RegisterVerificationRoutes(r chi.Router, db *sql.DB, cfg *config.Config) {
 
 	// 2. Build email service (already created earlier)
 	emailService := services.NewEmailService(cfg.ResendAPIKey, cfg.EmailFrom)
-
+	// emailService := services.NewEmailService(cfg.ResendAPIKey, cfg.EmailFrom, cfg.DevMode) // for dev mode
 	// 3. Build OTP service
 	otpService := services.NewOTPService(otpRepo, emailService)
 
 	// 4. Build handler
 	handler := &handlers.VerificationHandler{
-		OTP: otpService,
+		OTP:         otpService,
+		UserRepo:    repositories.NewUserRepository(db),
+		CompanyRepo: repositories.NewCompanyRepository(db),
+		Sessions:    repositories.NewSessionRepository(db),
+		Cfg:         cfg,
 	}
 
-	// 5. Route group
-	r.Route("/verification", func(r chi.Router) {
+	r.Post("/verification/email/confirm", handler.Confirm)
+
+	r.Group(func(r chi.Router) {
 		r.Use(middlewares.AuthMiddleware(cfg.JWTAccessSecret))
 
-		r.Post("/email/request", handler.Request)
-		r.Post("/email/confirm", handler.Confirm)
+		r.Post("/verification/email/request", handler.Request)
 	})
 }

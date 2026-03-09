@@ -1,6 +1,8 @@
 CREATE TABLE sessions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL,
+    company_id UUID NOT NULL,
+    role TEXT NOT NULL,
     refresh_token_hash TEXT NOT NULL,
     expires_at TIMESTAMPTZ NOT NULL,
     revoked_at TIMESTAMPTZ,

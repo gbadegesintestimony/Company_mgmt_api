@@ -1,0 +1,4 @@
+ALTER TABLE profiles 
+DROP COLUMN IF EXISTS phone,
+DROP COLUMN IF EXISTS job_title,
+DROP COLUMN IF EXISTS department;

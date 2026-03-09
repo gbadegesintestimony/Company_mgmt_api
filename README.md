@@ -2,23 +2,6 @@
 
 A production-grade REST API built with Go for managing company employees, authentication, and administrative operations. This project demonstrates enterprise-level software architecture patterns, security best practices, and comprehensive testing strategies.
 
-## Table of Contents
-
-- [Overview](#overview)
-- [Architecture](#architecture)
-- [Features](#features)
-- [Prerequisites](#prerequisites)
-- [Setup & Installation](#setup--installation)
-- [Configuration](#configuration)
-- [Running the Application](#running-the-application)
-- [API Documentation](#api-documentation)
-- [Development](#development)
-- [Testing](#testing)
-- [Database Migrations](#database-migrations)
-- [Security Considerations](#security-considerations)
-- [Deployment](#deployment)
-- [Contributing](#contributing)
-
 ## Overview
 
 The Company Management API provides a robust backend infrastructure for managing organizational data with features including:

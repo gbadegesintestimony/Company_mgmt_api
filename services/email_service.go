@@ -11,6 +11,7 @@ type EmailService struct {
 	// Fields for email service configuration
 	client *resend.Client
 	from   string
+	// devMode bool
 }
 
 func NewEmailService(apiKey, from string) *EmailService {
@@ -18,12 +19,19 @@ func NewEmailService(apiKey, from string) *EmailService {
 	return &EmailService{
 		client: client,
 		from:   from,
+		// devMode: devMode,
+
 	}
 }
 
 // SendOTP sends an OTP emaiil for verification or password reset
 
 func (s *EmailService) SendOTP(ctx context.Context, to, otp, purpose string) error {
+	// Dev mode — log OTP instead of sending email
+	// if s.devMode {
+	// 	log.Printf("DEV MODE OTP — to: %s | purpose: %s | code: %s", to, purpose, otp)
+	// 	return nil
+	// }
 	subject := fmt.Sprintf("%s Verification Code", purpose)
 
 	body := fmt.Sprintf(`

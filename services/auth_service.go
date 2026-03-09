@@ -16,7 +16,7 @@ type AuthService struct {
 
 func (s *AuthService) ResetPassword(
 	ctx context.Context,
-	userID, otpHash, newPassword string,
+	userID, rawCode, newPassword string,
 ) error {
 
 	tx, err := s.DB.BeginTx(ctx, nil)
@@ -25,18 +25,20 @@ func (s *AuthService) ResetPassword(
 	}
 	defer tx.Rollback()
 
-	if err := s.OTP.VerifyAndConsumeTx(ctx, tx, userID, "password_reset", otpHash); err != nil {
+	// hash := utils.HashOTP(rawCode)
+
+	if err := s.OTP.VerifyAndConsumeTx(ctx, tx, userID, "password_reset", rawCode); err != nil {
 		return err
 	}
 
-	hash, err := utils.HashPassword(newPassword)
+	newHash, err := utils.HashPassword(newPassword)
 	if err != nil {
 		return err
 	}
 
 	if _, err := tx.ExecContext(ctx, `
 		UPDATE users SET password_hash = $1 WHERE id = $2
-	`, hash, userID); err != nil {
+	`, newHash, userID); err != nil {
 		return err
 	}
 
@@ -45,4 +47,12 @@ func (s *AuthService) ResetPassword(
 	}
 
 	return tx.Commit()
+}
+
+func NewAuthService(db *sql.DB, otpRepo *repositories.OTPRepository, sessionRepo *repositories.SessionRepository) *AuthService {
+	return &AuthService{
+		DB:       db,
+		OTP:      otpRepo,
+		Sessions: sessionRepo,
+	}
 }
