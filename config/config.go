@@ -73,7 +73,7 @@ type Config struct {
 	EmailFrom    string
 	ResendAPIKey string
 
-	DevMode bool // add this
+	DevMode bool
 }
 
 func LoadConfig() *Config {

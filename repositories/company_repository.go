@@ -79,3 +79,10 @@ func (r *CompanyRepository) Update(ctx context.Context, c *models.Company) error
 	_, err := r.DB.ExecContext(ctx, query, c.Name, c.Domain, c.Status, c.ID)
 	return err
 }
+
+func (r *CompanyRepository) DeleteByID(ctx context.Context, companyID string) error {
+	_, err := r.DB.ExecContext(ctx, `
+        DELETE FROM companies WHERE id = $1
+    `, companyID)
+	return err
+}

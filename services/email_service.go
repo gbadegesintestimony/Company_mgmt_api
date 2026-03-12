@@ -14,17 +14,17 @@ type EmailService struct {
 	// devMode bool
 }
 
+// func NewEmailService(apiKey, from string, devMode bool) *EmailService { // for devmode
 func NewEmailService(apiKey, from string) *EmailService {
 	client := resend.NewClient(apiKey)
 	return &EmailService{
 		client: client,
 		from:   from,
 		// devMode: devMode,
-
 	}
 }
 
-// SendOTP sends an OTP emaiil for verification or password reset
+// SendOTP sends an OTP email for verification or password reset
 
 func (s *EmailService) SendOTP(ctx context.Context, to, otp, purpose string) error {
 	// Dev mode — log OTP instead of sending email

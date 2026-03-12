@@ -40,26 +40,31 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// Check for existing company by domain
-	if _, err := h.CompanyRepo.FindByDomain(ctx, req.Domain); err == nil {
-		http.Error(w, "company already registered", http.StatusConflict)
-		return
-	}
+	if existingCompany, err := h.CompanyRepo.FindByDomain(ctx, req.Domain); err == nil {
+		// Company exists - check if admin is verified
+		existingUserID, err := h.UserRepo.FindIDByEmail(ctx, req.Email)
+		if err != nil {
+			// Different email trying to register same domain
+			http.Error(w, "company already registered", http.StatusConflict)
+			return
+		}
 
-	if existingID, err := h.UserRepo.FindIDByEmail(ctx, req.Email); err == nil {
-		isVerified, err := h.UserRepo.IsVerified(ctx, existingID)
-
+		isVerified, err := h.UserRepo.IsVerified(ctx, existingUserID)
 		if err != nil {
 			http.Error(w, "failed to check account status", http.StatusInternalServerError)
 			return
 		}
-
 		if isVerified {
-			http.Error(w, "email already registered", http.StatusConflict)
+			http.Error(w, "Company already registered", http.StatusConflict)
 			return
 		}
-
-		if err := h.UserRepo.DeleteByID(ctx, existingID); err != nil {
+		if err := h.UserRepo.DeleteByID(ctx, existingUserID); err != nil {
 			http.Error(w, "failed to reset unverified account", http.StatusInternalServerError)
+			return
+		}
+		if err := h.CompanyRepo.DeleteByID(ctx, existingCompany.ID); err != nil {
+			http.Error(w, "failed to reset unverified company", http.StatusInternalServerError)
+			return
 		}
 	}
 
@@ -106,10 +111,16 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 
-	json.NewEncoder(w).Encode(map[string]interface{}{
-		"message":    "Registration initiated. An OTP has been sent to your email — please verify to activate your account.",
-		"email":      req.Email,
-		"created_at": time.Now().UTC().Format(time.RFC3339),
+	type CreateResponse struct {
+		Message   string `json:"message"`
+		Email     string `json:"email"`
+		CreatedAt string `json:"created_at"`
+	}
+
+	json.NewEncoder(w).Encode(CreateResponse{
+		Message:   "Registration initiated. An OTP has been sent to your email — please verify to activate your account.",
+		Email:     req.Email,
+		CreatedAt: time.Now().UTC().Format(time.RFC3339),
 	})
 
 }
@@ -242,14 +253,23 @@ func (h *AuthHandler) issueTokens(w http.ResponseWriter, r *http.Request, user *
 		return
 	}
 
+	type TokenResponse struct {
+		Message      string `json:"message"`
+		Role         string `json:"role"`
+		UserID       string `json:"user_id"`
+		AccessToken  string `json:"access_token"`
+		RefreshToken string `json:"refresh_token"`
+		LoggedInAt   string `json:"logged_in_at"`
+	}
+
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{
-		"message":       message,
-		"role":          user.Role,
-		"user_id":       user.ID,
-		"access_token":  access,
-		"refresh_token": refresh,
-		"logged_in_at":  time.Now().UTC().Format(time.RFC3339),
+	json.NewEncoder(w).Encode(TokenResponse{
+		Message:      message,
+		Role:         user.Role,
+		UserID:       user.ID,
+		AccessToken:  access,
+		RefreshToken: refresh,
+		LoggedInAt:   time.Now().UTC().Format(time.RFC3339),
 	})
 }
 

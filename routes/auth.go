@@ -20,7 +20,7 @@ func AuthRoutes(
 	db *sql.DB,
 ) {
 	// Authentication routes would be defined here
-	// emailSvc := services.NewEmailService(cfg.ResendAPIKey, cfg.EmailFrom, true) // for dev mode
+	// emailSvc := services.NewEmailService(cfg.ResendAPIKey, cfg.EmailFrom, cfg.DevMode) // for dev mode
 	emailSvc := services.NewEmailService(cfg.ResendAPIKey, cfg.EmailFrom)
 	otpRepo := repositories.NewOTPRepository(db)
 	otpService := services.NewOTPService(otpRepo, emailSvc)
