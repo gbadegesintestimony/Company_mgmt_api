@@ -3,35 +3,38 @@ package services
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/resend/resend-go/v2"
 )
 
 type EmailService struct {
-	// Fields for email service configuration
-	client *resend.Client
-	from   string
-	// devMode bool
+	client  *resend.Client
+	from    string
+	devMode bool
 }
 
-// func NewEmailService(apiKey, from string, devMode bool) *EmailService { // for devmode
 func NewEmailService(apiKey, from string) *EmailService {
 	client := resend.NewClient(apiKey)
 	return &EmailService{
 		client: client,
 		from:   from,
-		// devMode: devMode,
 	}
 }
 
-// SendOTP sends an OTP email for verification or password reset
+// NewDevEmailService returns an EmailService that logs the OTP instead of
+// sending real email, for local development and tests where no live email
+// provider credentials are available.
+func NewDevEmailService(from string) *EmailService {
+	return &EmailService{from: from, devMode: true}
+}
 
+// SendOTP sends an OTP email for verification or password reset
 func (s *EmailService) SendOTP(ctx context.Context, to, otp, purpose string) error {
-	// Dev mode — log OTP instead of sending email
-	// if s.devMode {
-	// 	log.Printf("DEV MODE OTP — to: %s | purpose: %s | code: %s", to, purpose, otp)
-	// 	return nil
-	// }
+	if s.devMode {
+		log.Printf("DEV MODE OTP — to: %s | purpose: %s | code: %s", to, purpose, otp)
+		return nil
+	}
 	subject := fmt.Sprintf("%s Verification Code", purpose)
 
 	body := fmt.Sprintf(`

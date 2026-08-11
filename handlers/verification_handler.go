@@ -87,7 +87,7 @@ func (h *VerificationHandler) Confirm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	refresh, err := utils.GenerateRefreshToken(h.Cfg.JWTRefreshSecret)
+	refresh, err := utils.GenerateRefreshToken()
 	if err != nil {
 		http.Error(w, "failed to generate refresh token", http.StatusInternalServerError)
 		return

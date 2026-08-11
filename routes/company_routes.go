@@ -13,6 +13,7 @@ func CompanyRoutes(r chi.Router, handler *handlers.CompanyHandler, audit *handle
 	sessionRepo *repositories.SessionRepository) {
 
 	r.Route("/companies/{companyId}", func(r chi.Router) {
+		r.Use(middlewares.RequireOwnCompany)
 
 		r.Get("/", handler.Get)
 		r.Patch("/", handler.Update)

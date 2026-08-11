@@ -23,7 +23,7 @@ func EmployeeRoutes(
 	r.Get("/", admin.List)
 	r.Get("/{userId}", admin.Get)
 	r.Patch("/{userId}", admin.Update)
-	r.Patch("/{id}/deactivate", admin.Deactivate)
+	r.Patch("/{userId}/deactivate", admin.Deactivate)
 	r.Post("/{userId}/reactivate", admin.Reactivate)
 	r.Delete("/{userId}", admin.Delete)
 }

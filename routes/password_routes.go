@@ -14,7 +14,6 @@ import (
 func RegisterPasswordRoutes(r chi.Router, db *sql.DB, cfg *config.Config) {
 	otpRepo := repositories.NewOTPRepository(db)
 	emailService := services.NewEmailService(cfg.ResendAPIKey, cfg.EmailFrom)
-	// emailService := services.NewEmailService(cfg.ResendAPIKey, cfg.EmailFrom, cfg.DevMode) // for dev mode
 
 	otpService := services.NewOTPService(otpRepo, emailService)
 

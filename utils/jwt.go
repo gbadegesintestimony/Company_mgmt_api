@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"crypto/rand"
+	"encoding/base64"
 	"errors"
 	"time"
 
@@ -19,13 +21,16 @@ func GenerateAccessToken(userID, companyID, role, secret string) (string, error)
 	return token.SignedString([]byte(secret))
 }
 
-func GenerateRefreshToken(secret string) (string, error) {
-	// Implementation for generating JWT refresh token
-	claims := jwt.MapClaims{
-		"exp": time.Now().Add(7 * 24 * time.Hour).Unix(),
+// GenerateRefreshToken returns a cryptographically random, high-entropy
+// opaque token. It carries no claims — validity is enforced entirely by the
+// hashed lookup in SessionRepository, so it must never be predictable or
+// reproducible across calls (unlike a JWT built from a coarse timestamp).
+func GenerateRefreshToken() (string, error) {
+	b := make([]byte, 32)
+	if _, err := rand.Read(b); err != nil {
+		return "", err
 	}
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString([]byte(secret))
+	return base64.RawURLEncoding.EncodeToString(b), nil
 }
 
 func ParseToken(tokenStr, secret string) (jwt.MapClaims, error) {

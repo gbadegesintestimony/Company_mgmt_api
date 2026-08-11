@@ -41,15 +41,18 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 
 	// Check for existing company by domain
 	if existingCompany, err := h.CompanyRepo.FindByDomain(ctx, req.Domain); err == nil {
-		// Company exists - check if admin is verified
-		existingUserID, err := h.UserRepo.FindIDByEmail(ctx, req.Email)
+		// Company exists - check if the given email is THIS company's own
+		// (unverified) admin before touching anything. Looking the email up
+		// globally would let a caller pair an unrelated unverified account
+		// with someone else's domain and delete that company instead.
+		existingUser, err := h.UserRepo.FindByEmailAndCompany(ctx, req.Email, existingCompany.ID)
 		if err != nil {
 			// Different email trying to register same domain
 			http.Error(w, "company already registered", http.StatusConflict)
 			return
 		}
 
-		isVerified, err := h.UserRepo.IsVerified(ctx, existingUserID)
+		isVerified, err := h.UserRepo.IsVerified(ctx, existingUser.ID)
 		if err != nil {
 			http.Error(w, "failed to check account status", http.StatusInternalServerError)
 			return
@@ -58,7 +61,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Company already registered", http.StatusConflict)
 			return
 		}
-		if err := h.UserRepo.DeleteByID(ctx, existingUserID); err != nil {
+		if err := h.UserRepo.DeleteByID(ctx, existingUser.ID); err != nil {
 			http.Error(w, "failed to reset unverified account", http.StatusInternalServerError)
 			return
 		}
@@ -228,7 +231,14 @@ func (h *AuthHandler) EmployeeLogin(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "failed to send verification email", http.StatusInternalServerError)
 			return
 		}
-		h.issueTokens(w, r, user, "Account not yet verified. An OTP has been sent to your email — please verify your account.")
+		// No tokens for unverified accounts — matches AdminLogin's gate.
+		// Without this, an unverified employee could get a fully working
+		// session and use the API without ever confirming their email.
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusForbidden)
+		json.NewEncoder(w).Encode(map[string]string{
+			"message": "email not verified. An OTP has been sent to your email — please verify your account.",
+		})
 		return
 	}
 	h.issueTokens(w, r, user, "Login Successful")
@@ -241,7 +251,7 @@ func (h *AuthHandler) issueTokens(w http.ResponseWriter, r *http.Request, user *
 		return
 	}
 
-	refresh, err := utils.GenerateRefreshToken(h.Cfg.JWTRefreshSecret)
+	refresh, err := utils.GenerateRefreshToken()
 	if err != nil {
 		http.Error(w, "failed to generate refresh token", http.StatusInternalServerError)
 		return
@@ -301,7 +311,7 @@ func (h *AuthHandler) Refresh(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Generate new refresh token
-	newRefresh, err := utils.GenerateRefreshToken(h.Cfg.JWTRefreshSecret)
+	newRefresh, err := utils.GenerateRefreshToken()
 	if err != nil {
 		http.Error(w, "failed to generate refresh token", http.StatusInternalServerError)
 		return

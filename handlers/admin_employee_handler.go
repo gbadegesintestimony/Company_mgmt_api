@@ -111,7 +111,7 @@ func (h *AdminEmployeeHandler) List(w http.ResponseWriter, r *http.Request) {
 
 func (h *AdminEmployeeHandler) Deactivate(w http.ResponseWriter, r *http.Request) {
 	// Handler logic goes here
-	userID := chi.URLParam(r, "userid")
+	userID := chi.URLParam(r, "userId")
 	// Assume we have companyID from context/session
 	// companyID := r.Context().Value("company_id").(string)
 	companyID := chi.URLParam(r, "companyId")

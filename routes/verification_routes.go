@@ -18,7 +18,6 @@ func RegisterVerificationRoutes(r chi.Router, db *sql.DB, cfg *config.Config) {
 
 	// 2. Build email service (already created earlier)
 	emailService := services.NewEmailService(cfg.ResendAPIKey, cfg.EmailFrom)
-	// emailService := services.NewEmailService(cfg.ResendAPIKey, cfg.EmailFrom, cfg.DevMode) // for dev mode
 	// 3. Build OTP service
 	otpService := services.NewOTPService(otpRepo, emailService)
 
